@@ -29,8 +29,6 @@ export const StreamNumbers = () => {
 
         for (const line of lines) setNumbers((prev) => [...prev, line]);
       }
-
-      console.log(response);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
@@ -42,13 +40,20 @@ export const StreamNumbers = () => {
     <div className="p-6 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Random Number Stream</h1>
 
-      <button
-        onClick={startStream}
-        disabled={isStreaming}
-        className="bg-blue-500 hover:bg-blue-700 disabled:bg-gray-400 text-white font-bold py-2 px-4 rounded mb-4"
-      >
-        {isStreaming ? "Streaming..." : "Start Stream"}
-      </button>
+      {isStreaming && (
+        <div className="mt-4 text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
+      )}
+      {!isStreaming && (
+        <button
+          onClick={startStream}
+          disabled={isStreaming}
+          className="bg-blue-500 hover:bg-blue-700 disabled:bg-gray-400 text-white font-bold py-2 px-4 rounded mb-4"
+        >
+          {isStreaming ? "Streaming..." : "Start Stream"}
+        </button>
+      )}
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -59,12 +64,6 @@ export const StreamNumbers = () => {
       <div className="space-y-2">
         <pre>{JSON.stringify({ numbers }, undefined, 2)}</pre>
       </div>
-
-      {isStreaming && (
-        <div className="mt-4 text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        </div>
-      )}
     </div>
   );
 };
