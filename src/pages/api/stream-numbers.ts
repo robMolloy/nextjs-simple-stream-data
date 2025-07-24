@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
-const createRandomInteger = () => Math.floor(Math.random() * 10) + 1;
+const createRandomInteger = () => Math.floor(Math.random() * 9) + 1;
 const createRandomIntegerArray = (length: number) =>
   [...Array(length)].map(() => createRandomInteger());
 
@@ -29,7 +29,6 @@ export default async function handler(
       if ("flush" in res && typeof res.flush === "function") res.flush();
     }
 
-    // return res.status(200).json({ message: "Streaming started" });
     res.end();
   } catch (error) {
     console.error(error);

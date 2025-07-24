@@ -1,39 +1,50 @@
 import { useState } from "react";
 
+type TFetchParams = Parameters<typeof fetch>;
+
+const streamFetch = async (p: {
+  url: string;
+  payload: TFetchParams[1];
+  onStream: (x: string) => void;
+}): Promise<string> => {
+  const strArray: string[] = [];
+  const response = await fetch(p.url, p.payload);
+  if (!response.ok) throw new Error("Failed to start stream");
+
+  const reader = response.body?.getReader();
+  const decoder = new TextDecoder();
+
+  if (!reader) throw new Error("No reader available");
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    const chunk = decoder.decode(value, { stream: true });
+    strArray.push(chunk);
+    p.onStream(strArray.join(""));
+  }
+
+  return strArray.join("");
+};
+
 export const StreamNumbers = () => {
-  const [numbers, setNumbers] = useState<string[]>([]);
+  const [number, setNumber] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const startStream = async () => {
-    setNumbers([]);
+    setNumber("");
     setError(null);
     setIsStreaming(true);
+    const response = await streamFetch({
+      url: "/api/stream-numbers",
+      payload: {},
+      onStream: (x) => setNumber(x),
+    });
 
-    try {
-      const response = await fetch("/api/stream-numbers");
-
-      if (!response.ok) throw new Error("Failed to start stream");
-
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-
-      if (!reader) throw new Error("No reader available");
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split("\n");
-
-        for (const line of lines) setNumbers((prev) => [...prev, line]);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
-    } finally {
-      setIsStreaming(false);
-    }
+    console.log(`StreamNumbers.tsx:${/*LL*/ 50}`, { response });
+    setIsStreaming(false);
   };
 
   return (
@@ -62,7 +73,7 @@ export const StreamNumbers = () => {
       )}
 
       <div className="space-y-2">
-        <pre>{JSON.stringify({ numbers }, undefined, 2)}</pre>
+        <pre>{JSON.stringify({ numbers: number }, undefined, 2)}</pre>
       </div>
     </div>
   );
