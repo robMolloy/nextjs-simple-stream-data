@@ -1,13 +1,7 @@
 import { useState } from "react";
 
-interface NumberData {
-  number: number;
-  count: number;
-  timestamp: string;
-}
-
 export const StreamNumbers = () => {
-  const [numbers, setNumbers] = useState<NumberData[]>([]);
+  const [numbers, setNumbers] = useState<string[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,39 +13,24 @@ export const StreamNumbers = () => {
     try {
       const response = await fetch("/api/stream-numbers");
 
-      if (!response.ok) {
-        throw new Error("Failed to start stream");
-      }
+      if (!response.ok) throw new Error("Failed to start stream");
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
 
-      if (!reader) {
-        throw new Error("No reader available");
-      }
+      if (!reader) throw new Error("No reader available");
 
       while (true) {
         const { done, value } = await reader.read();
-
-        if (done) {
-          break;
-        }
+        if (done) break;
 
         const chunk = decoder.decode(value, { stream: true });
         const lines = chunk.split("\n");
 
-        for (const line of lines) {
-          console.log({ line });
-          if (line.startsWith("data: ")) {
-            try {
-              const data = JSON.parse(line.slice(6)); // Remove 'data: ' prefix
-              setNumbers((prev) => [...prev, data]);
-            } catch (e) {
-              console.error("Failed to parse JSON:", e);
-            }
-          }
-        }
+        for (const line of lines) setNumbers((prev) => [...prev, line]);
       }
+
+      console.log(response);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
@@ -78,20 +57,7 @@ export const StreamNumbers = () => {
       )}
 
       <div className="space-y-2">
-        {numbers.map((data, index) => (
-          <div
-            key={index}
-            className="bg-gray-100 p-3 rounded border animate-pulse"
-            style={{ animationDuration: "1s", animationIterationCount: "1" }}
-          >
-            <div className="flex justify-between items-center">
-              <span className="text-xl font-mono">{data.number}</span>
-              <span className="text-sm text-gray-500">
-                #{data.count} - {new Date(data.timestamp).toLocaleTimeString()}
-              </span>
-            </div>
-          </div>
-        ))}
+        <pre>{JSON.stringify({ numbers }, undefined, 2)}</pre>
       </div>
 
       {isStreaming && (
