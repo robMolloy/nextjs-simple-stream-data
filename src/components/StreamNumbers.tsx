@@ -31,6 +31,7 @@ const streamFetch = async (p: {
 
     return { success: true, data: strArray.join("") };
   } catch (error) {
+    console.error(error);
     return { success: false, error };
   }
 };
@@ -47,8 +48,6 @@ export const StreamNumbers = () => {
       payload: {},
       onStream: (x) => setNumber(x),
     });
-
-    console.log(`StreamNumbers.tsx:${/*LL*/ 50}`, { response });
 
     setMode(response.success ? "ready" : "error");
   };

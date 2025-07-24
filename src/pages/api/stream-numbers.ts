@@ -11,7 +11,7 @@ const delay = async (x: number) => {
 };
 
 export default async function handler(
-  req: NextApiRequest,
+  _req: NextApiRequest,
   res: NextApiResponse
 ) {
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
@@ -22,7 +22,7 @@ export default async function handler(
 
   try {
     for (const randomInteger of randomIntegers) {
-      await delay(1000);
+      await delay(100);
 
       res.write(`${randomInteger}`);
       res?.flushHeaders();
@@ -32,7 +32,6 @@ export default async function handler(
     res.end();
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Stream failed" });
-    res.end();
+    res.status(500).send({ error: "Stream failed" });
   }
 }
