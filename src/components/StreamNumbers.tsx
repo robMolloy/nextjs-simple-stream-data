@@ -2,6 +2,14 @@ import { useState } from "react";
 
 type TFetchParams = Parameters<typeof fetch>;
 
+const jsonParse = (x: unknown) => {
+  try {
+    return { succcess: true, data: JSON.parse(x as string) };
+  } catch (error) {
+    return { success: false, error: "unable to parse " + x + error };
+  }
+};
+
 const streamFetch = async (p: {
   url: string;
   payload: TFetchParams[1];
@@ -25,7 +33,13 @@ const streamFetch = async (p: {
       if (done) break;
 
       const chunk = decoder.decode(value, { stream: true });
-      strArray.push(chunk);
+      const jsonParseResp = jsonParse(chunk);
+      if (jsonParseResp.success === false)
+        throw new Error("unable to parse data");
+      const message = jsonParseResp.data.message;
+      if (message === undefined || message === null)
+        throw new Error("message is undefined or null");
+      strArray.push(message);
       p.onStream(strArray.join(""));
     }
 

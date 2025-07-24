@@ -22,9 +22,10 @@ export default async function handler(
 
   try {
     for (const randomInteger of randomIntegers) {
+      if (randomInteger === 1) throw new Error("test");
       await delay(100);
 
-      res.write(`${randomInteger}`);
+      res.write(JSON.stringify({ message: randomInteger }));
       res?.flushHeaders();
       if ("flush" in res && typeof res.flush === "function") res.flush();
     }
