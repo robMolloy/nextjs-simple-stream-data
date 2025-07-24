@@ -2,7 +2,7 @@ import { useState } from "react";
 
 type TFetchParams = Parameters<typeof fetch>;
 
-const jsonParse = (x: unknown) => {
+const safeJsonParse = (x: unknown) => {
   try {
     return { succcess: true, data: JSON.parse(x as string) };
   } catch (error) {
@@ -33,12 +33,14 @@ const streamFetch = async (p: {
       if (done) break;
 
       const chunk = decoder.decode(value, { stream: true });
-      const jsonParseResp = jsonParse(chunk);
+      const jsonParseResp = safeJsonParse(chunk);
       if (jsonParseResp.success === false)
-        throw new Error("unable to parse data");
+        return { success: false, error: "unable to parse data" };
+
       const message = jsonParseResp.data.message;
       if (message === undefined || message === null)
-        throw new Error("message is undefined or null");
+        return { success: false, error: "message is undefined or null" };
+
       strArray.push(message);
       p.onStream(strArray.join(""));
     }
@@ -54,44 +56,50 @@ export const StreamNumbers = () => {
   const [number, setNumber] = useState("");
   const [mode, setMode] = useState<"ready" | "streaming" | "error">("ready");
 
-  const startStream = async () => {
-    setNumber("");
-    setMode("streaming");
-    const response = await streamFetch({
-      url: "/api/stream-numbers",
-      payload: {},
-      onStream: (x) => setNumber(x),
-    });
-
-    setMode(response.success ? "ready" : "error");
-  };
-
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Random Number Stream</h1>
 
-      {mode === "streaming" && (
-        <div className="mt-4 text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        </div>
-      )}
-      {mode !== "streaming" && (
+      <div
+        className={`${
+          mode !== "error" ? "opacity-0" : ""
+        }  bg-red-100 border  text-red-700 p-4 rounded`}
+      >
+        there was an error
+      </div>
+
+      <br />
+
+      <div className="flex justify-between">
         <button
-          onClick={startStream}
+          onClick={async () => {
+            if (mode === "streaming") return;
+            setNumber("");
+            setMode("streaming");
+
+            const response = await streamFetch({
+              url: "/api/stream-numbers",
+              payload: {},
+              onStream: (x) => setNumber(x),
+            });
+
+            setMode(response.success ? "ready" : "error");
+          }}
+          disabled={mode === "streaming"}
           className="bg-blue-500 hover:bg-blue-700 disabled:bg-gray-400 text-white font-bold py-2 px-4 rounded mb-4"
         >
-          Start Stream
+          {mode !== "streaming" ? (
+            "Start Stream"
+          ) : (
+            <div className="flex items-center">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+            </div>
+          )}
         </button>
-      )}
 
-      {mode === "error" && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          there was an error
+        <div className="w-64">
+          <pre>{JSON.stringify({ numbers: number }, undefined, 2)}</pre>
         </div>
-      )}
-
-      <div className="space-y-2">
-        <pre>{JSON.stringify({ numbers: number }, undefined, 2)}</pre>
       </div>
     </div>
   );
