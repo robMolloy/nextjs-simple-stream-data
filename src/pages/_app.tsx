@@ -18,6 +18,9 @@ export default function App({ Component, pageProps }: AppProps) {
         <Link href="/vercel-stream-text-page" className="hover:underline p-4">
           vercel-stream-text-page
         </Link>
+        <Link href="/call-anthropic" className="hover:underline p-4">
+          call-anthropic
+        </Link>
       </div>
       <Component {...pageProps} />
     </>
