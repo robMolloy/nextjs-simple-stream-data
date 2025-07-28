@@ -12,8 +12,8 @@ export default function App({ Component, pageProps }: AppProps) {
         <Link href="/simple-stream-numbers" className="hover:underline p-4">
           simple-stream-numbers
         </Link>
-        <Link href="/socket-stream-numbers" className="hover:underline p-4">
-          socket-stream-numbers
+        <Link href="/vercel-stream-text" className="hover:underline p-4">
+          vercel-stream-text
         </Link>
       </div>
       <Component {...pageProps} />
