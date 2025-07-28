@@ -11,20 +11,21 @@ const delay = async (x: number) => {
 };
 
 export default async function handler(
-  _req: NextApiRequest,
+  req: NextApiRequest,
   res: NextApiResponse
 ) {
-  console.log(`vercel-stream-text-page.ts:${/*LL*/ 17}`, {});
+  const qty = JSON.parse(req.body).qty;
+  console.log(`vercel-stream-text-page.ts:${/*LL*/ 18}`, { qty });
+  const randomIntegers = createRandomIntegerArray(qty);
+
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
-  const randomIntegers = createRandomIntegerArray(3);
-
   try {
     for (const randomInteger of randomIntegers) {
-      if (randomInteger === 1) throw new Error("test");
-      await delay(100);
+      console.log(`vercel-stream-text-page.ts:${/*LL*/ 27}`, { randomInteger });
+      await delay(5);
 
       res.write(JSON.stringify({ message: randomInteger }));
       res?.flushHeaders();

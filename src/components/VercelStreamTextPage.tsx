@@ -53,7 +53,8 @@ const streamFetch = async (p: {
 };
 
 export const VercelStreamTextPage = () => {
-  const [number, setNumber] = useState("");
+  const [qty, setQty] = useState(8);
+  const [numbers, setNumber] = useState("");
   const [mode, setMode] = useState<"ready" | "streaming" | "error">("ready");
 
   return (
@@ -71,6 +72,15 @@ export const VercelStreamTextPage = () => {
       <br />
 
       <div className="flex justify-between">
+        <input
+          className="text-black w-12"
+          type="number"
+          onInput={(e) => {
+            const evt = e.target as unknown as { value: string };
+            setQty(parseInt(evt.value as string));
+          }}
+          value={qty}
+        />
         <button
           onClick={async () => {
             if (mode === "streaming") return;
@@ -78,15 +88,18 @@ export const VercelStreamTextPage = () => {
             setMode("streaming");
 
             const response = await streamFetch({
-              url: "/api/simple-stream-numbers",
-              payload: {},
+              url: "/api/vercel-stream-text-page",
+              payload: {
+                method: "POST",
+                body: JSON.stringify({ qty }),
+              },
               onStream: (x) => setNumber(x),
             });
 
             setMode(response.success ? "ready" : "error");
           }}
           disabled={mode === "streaming"}
-          className="bg-blue-500 hover:bg-blue-700 disabled:bg-gray-400 text-white font-bold py-2 px-4 rounded mb-4"
+          className="h-16 bg-blue-500 hover:bg-blue-700 disabled:bg-gray-400 text-white font-bold py-2 px-4 rounded mb-4"
         >
           {mode !== "streaming" ? (
             "Start Stream"
@@ -96,11 +109,10 @@ export const VercelStreamTextPage = () => {
             </div>
           )}
         </button>
-
-        <div className="w-64">
-          <pre>{JSON.stringify({ numbers: number }, undefined, 2)}</pre>
-        </div>
       </div>
+      <pre>
+        {JSON.stringify({ qty, numbers, length: numbers.length }, undefined, 2)}
+      </pre>
     </div>
   );
 };

@@ -18,6 +18,10 @@ export default async function handler(
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
+  console.log(`simple-stream-numbers.ts:${/*LL*/ 21}`, {
+    x: await _req.body,
+  });
+
   const randomIntegers = createRandomIntegerArray(3);
 
   try {
