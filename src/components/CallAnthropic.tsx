@@ -53,8 +53,8 @@ const streamFetch = async (p: {
 };
 
 export const CallAnthropic = () => {
-  const [qty, setQty] = useState(8);
-  const [numbers, setNumber] = useState("");
+  const [prompt, setPrompt] = useState("");
+  const [response, setResponse] = useState("");
   const [mode, setMode] = useState<"ready" | "streaming" | "error">("ready");
 
   return (
@@ -71,29 +71,28 @@ export const CallAnthropic = () => {
 
       <br />
 
-      <div className="flex justify-between">
+      <div className="flex gap-16">
         <input
-          className="text-black w-12"
-          type="number"
+          className="text-black flex-1"
           onInput={(e) => {
             const evt = e.target as unknown as { value: string };
-            setQty(parseInt(evt.value as string));
+            setPrompt(evt.value);
           }}
-          value={qty}
+          value={prompt}
         />
         <button
           onClick={async () => {
             if (mode === "streaming") return;
-            setNumber("");
+            setResponse("");
             setMode("streaming");
 
             const response = await streamFetch({
               url: "/api/call-anthropic",
               payload: {
                 method: "POST",
-                body: JSON.stringify({ qty }),
+                body: JSON.stringify({ prompt }),
               },
-              onStream: (x) => setNumber(x),
+              onStream: (x) => setResponse(x),
             });
 
             setMode(response.success ? "ready" : "error");
@@ -113,15 +112,15 @@ export const CallAnthropic = () => {
       <pre>
         {JSON.stringify(
           {
-            qty,
+            prompt,
             // numbers,
-            length: numbers.length,
+            length: response.length,
           },
           undefined,
           2
         )}
       </pre>
-      <div>{numbers}</div>
+      <div>{response}</div>
     </div>
   );
 };
