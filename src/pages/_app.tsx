@@ -9,11 +9,11 @@ export default function App({ Component, pageProps }: AppProps) {
         <Link href="/" className="hover:underline p-4">
           Home
         </Link>
-        <Link href="/stream-numbers-simple" className="hover:underline p-4">
-          Stream Numbers Simple
+        <Link href="/simple-stream-numbers" className="hover:underline p-4">
+          simple-stream-numbers
         </Link>
-        <Link href="/stream-numbers-jh" className="hover:underline p-4">
-          Stream Numbers JH
+        <Link href="/socket-stream-numbers" className="hover:underline p-4">
+          socket-stream-numbers
         </Link>
       </div>
       <Component {...pageProps} />
